@@ -1,56 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>reCAPTCHA Implementation</title>
-    <!-- Load reCAPTCHA API -->
-    <script src="https://www.google.com/recaptcha/api.js?render=6LcKIpgqAAAAAGl0x9S4KxyAi526t66GdfXudnMh"></script>
-    <style>
-        .token-display {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border: 1px solid #ddd;
-            word-break: break-all;
-        }
-        .button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <!-- 1. Use local copy of streams.js instead of S3 URL -->
+    <script src="connect-streams.js"></script>
 </head>
-<body>
-    <div style="max-width: 800px; margin: 40px auto; padding: 20px;">
-        <h1>reCAPTCHA Token Generator</h1>
-        
-        <button onclick="getRecaptchaToken()" class="button">Get reCAPTCHA Token</button>
-        
-        <div id="tokenDisplay" class="token-display"></div>
-    </div>
+<body onload="init()">
+    <h1>Amazon Connect</h1>
+    <h2>Screenpop Example</h2>
+    <div id="containerDiv"></div>
 
     <script>
-        function getRecaptchaToken() {
-            grecaptcha.ready(function() {
-                grecaptcha.execute('6LcKIpgqAAAAAGl0x9S4KxyAi526t66GdfXudnMh', {action: 'submit'})
-                    .then(function(token) {
-                        // Display the token
-                        document.getElementById('tokenDisplay').textContent = 'reCAPTCHA Token: ' + token;
-                        
-                        // Log the token to console
-                        console.log('reCAPTCHA Token:', token);
-                        
-                        return token;
-                    });
+		function init() {
+        
+            // 3. Get container element properly
+            const containerDiv = document.getElementById('containerDiv');
+            
+            // 4. Initialize CCP with correct parameters
+            connect.core.initCCP(containerDiv, {
+                ccpUrl: 'https://cherukarajohnson03.my.connect.aws/connect/ccp-v2/',
+                loginPopup: true,
+                softphone: {
+                    allowFramedSoftphone: true
+                }
             });
-        }
+			
+		
+
+            // 5. Simplified contact handling
+            connect.contact(function(contact) {
+				console.log("Contact object created:", contact);
+			
+
+				contact.onRefresh(function(contact) {
+					console.log("Contact incoming");
+				});
+
+
+
+
+				contact.onIncoming(() => console.log("Contact incoming"));
+				contact.onConnected(function() {
+					console.log(`onConnected(${contact.getContactId()})`);
+					var attributeMap = contact.getAttributes();
+					console.log("Contact attributes:", attributeMap); 
+					var name = JSON.stringify(attributeMap["name"]["value"]);
+					var zip = JSON.stringify(attributeMap["zip"]["value"]);
+                        
+                        console.log(name);
+						console.log(zip);
+                 
+						window.alert("Customer's name: " + name + "\nCustomer's zip #: " + zip);
+
+				});
+                contact.onAccepted(function() {
+					
+					console.log("Contact accepted:", contact.getContactId());
+                    try {
+                        // 6. Direct attribute access without JSON.stringify
+                        var attributeMap = contact.getAttributes();
+						console.log("Contact attributes:", attributeMap); 
+						var name = JSON.stringify(attributeMap["name"]["value"]);
+						var zip = JSON.stringify(attributeMap["zip"]["value"]);
+                        
+                        console.log(name);
+						console.log(zip);
+                
+						window.alert("Customer's name: " + name + "\nCustomer's zip #: " + zip);
+                    } catch (error) {
+                        console.error('Error handling contact:', error);
+                    }
+                });
+				
+				contact.onEnded(function() {
+					console.log("Contact incoming");
+					});
+            });
+     }
     </script>
 </body>
 </html>
