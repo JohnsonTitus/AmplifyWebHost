@@ -1,15 +1,55 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <!-- 1. Use local copy of streams.js instead of S3 URL -->
-    <script src="connect-streams.js"></script>
-</head>
-<body onload="init()">
-    <h1>Amazon Connect</h1>
-    <h2>Screenpop Example</h2>
-    <div id="containerDiv"></div>
-
-    
-</body>
-</html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>reCAPTCHA Implementation</title>
+     <!-- Load reCAPTCHA API -->
+     <script src="https://www.google.com/recaptcha/api.js?render=6LcKIpgqAAAAAGl0x9S4KxyAi526t66GdfXudnMh"></script>
+     <style>
+         .token-display {
+             margin-top: 20px;
+             padding: 10px;
+             background-color: #f5f5f5;
+             border: 1px solid #ddd;
+             word-break: break-all;
+         }
+         .button {
+             padding: 10px 20px;
+             background-color: #4CAF50;
+             color: white;
+             border: none;
+             border-radius: 4px;
+             cursor: pointer;
+         }
+         .button:hover {
+             background-color: #45a049;
+         }
+     </style>
+ </head>
+ <body>
+     <div style="max-width: 800px; margin: 40px auto; padding: 20px;">
+         <h1>reCAPTCHA Token Generator</h1>
+         
+         <button onclick="getRecaptchaToken()" class="button">Get reCAPTCHA Token</button>
+         
+         <div id="tokenDisplay" class="token-display"></div>
+     </div>
+	 <script>
+         function getRecaptchaToken() {
+             grecaptcha.ready(function() {
+                 grecaptcha.execute('6LcKIpgqAAAAAGl0x9S4KxyAi526t66GdfXudnMh', {action: 'submit'})
+                     .then(function(token) {
+                         // Display the token
+                         document.getElementById('tokenDisplay').textContent = 'reCAPTCHA Token: ' + token;
+                         
+                         // Log the token to console
+                         console.log('reCAPTCHA Token:', token);
+                         
+                         return token;
+                     });
+             });
+         }
+     </script>
+ </body>
+ </html>
